@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import type { RecordingSettings, DisplayInfo } from '@shared/types'
 import { registry } from '../windows/registry'
 import { createCompositorWindow } from '../windows/compositor'
+import { createBubbleWindow } from '../windows/bubble'
 
 export function registerRecordingHandlers() {
   ipcMain.handle('recording:start', async (_e, settings: RecordingSettings) => {
@@ -21,6 +22,10 @@ export function registerRecordingHandlers() {
       sourceId: source.id
     }
 
+    if (settings.bubble.enabled && settings.webcamDeviceId) {
+      createBubbleWindow(settings.bubble.sizePx, settings.webcamDeviceId)
+    }
+
     const comp = createCompositorWindow()
     const send = () => comp.webContents.send('recorder:cmd',
       { type: 'start', settings, sourceId: source.id, display: info })
@@ -30,6 +35,7 @@ export function registerRecordingHandlers() {
 
   ipcMain.handle('recording:stop', async () => {
     registry.get('compositor')?.webContents.send('recorder:cmd', { type: 'stop' })
+    registry.close('bubble')
   })
 
   ipcMain.handle('files:writeTemp', async (_e, bytes: Uint8Array) => {

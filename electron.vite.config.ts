@@ -15,7 +15,8 @@ export default defineConfig({
       rollupOptions: {
         input: {
           home: resolve('src/windows/home/index.html'),
-          compositor: resolve('src/windows/compositor/index.html')
+          compositor: resolve('src/windows/compositor/index.html'),
+          bubble: resolve('src/windows/bubble/index.html')
         }
       }
     }
