@@ -6,6 +6,7 @@ import { registry } from '../windows/registry'
 import { createCompositorWindow } from '../windows/compositor'
 import { createBubbleWindow } from '../windows/bubble'
 import { createToolbarWindow } from '../windows/toolbar'
+import { createEditorWindow } from '../windows/editor'
 
 export function registerRecordingHandlers() {
   ipcMain.handle('recording:start', async (_e, settings: RecordingSettings) => {
@@ -53,6 +54,8 @@ export function registerRecordingHandlers() {
   })
 
   ipcMain.on('recording:finished', (_e, payload: { tempPath: string; durationSec: number }) => {
-    registry.broadcast('recording:finished', payload)
+    registry.close('bubble')
+    registry.close('toolbar')
+    createEditorWindow(payload.tempPath, payload.durationSec)
   })
 }

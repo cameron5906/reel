@@ -1,0 +1,10 @@
+html, body { margin: 0; font-family: system-ui; background: #111; color: #eee; }
+.editor { display: flex; flex-direction: column; gap: 16px; padding: 16px; height: 100vh; box-sizing: border-box; }
+.preview { width: 100%; flex: 1; min-height: 0; background: #000; border-radius: 8px; object-fit: contain; }
+.controls { display: flex; align-items: center; gap: 16px; }
+.controls button { background: #4f7cff; color: #fff; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; }
+.trim { position: relative; height: 44px; background: #222; border-radius: 8px; overflow: hidden; user-select: none; }
+.trim-dim { position: absolute; top: 0; bottom: 0; background: rgba(0,0,0,.55); }
+.trim-range { position: absolute; top: 0; bottom: 0; background: rgba(79,124,255,.18); }
+.playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: #fff; }
+.handle { position: absolute; top: 0; bottom: 0; width: 10px; margin-left: -5px; background: #4f7cff; cursor: ew-resize; border-radius: 4px; }

@@ -18,7 +18,8 @@ export default defineConfig({
           compositor: resolve('src/windows/compositor/index.html'),
           bubble: resolve('src/windows/bubble/index.html'),
           toolbar: resolve('src/windows/toolbar/index.html'),
-          region: resolve('src/windows/region/index.html')
+          region: resolve('src/windows/region/index.html'),
+          editor: resolve('src/windows/editor/index.html')
         }
       }
     }
