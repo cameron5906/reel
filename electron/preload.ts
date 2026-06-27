@@ -51,7 +51,9 @@ const api = {
     const h = (_: unknown, pct: number) => cb(pct)
     ipcRenderer.on('export:progress', h)
     return () => ipcRenderer.removeListener('export:progress', h)
-  }
+  },
+
+  abortRecording: (message: string): void => { ipcRenderer.send('recording:abort', message) }
 }
 
 export type ReelApi = typeof api

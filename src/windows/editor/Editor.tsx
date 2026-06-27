@@ -8,6 +8,7 @@ export function Editor({ tempPath, duration }: { tempPath: string; duration: num
   const [playhead, setPlayhead] = useState(0)
   const [format, setFormat] = useState<'mp4' | 'webm'>('mp4')
   const [progress, setProgress] = useState<number | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const v = videoRef.current!
@@ -29,14 +30,20 @@ export function Editor({ tempPath, duration }: { tempPath: string; duration: num
   }, [])
 
   async function save() {
+    setError(null)
     setProgress(0)
-    const res = await window.reel.saveRecording({
-      tempPath, format, trimStart: trim.inSec, trimEnd: trim.outSec,
-      suggestedName: 'Reel-recording'
-    })
-    setProgress(null)
-    if (res.saved && res.path) {
-      window.reel.revealInExplorer(res.path)
+    try {
+      const res = await window.reel.saveRecording({
+        tempPath, format, trimStart: trim.inSec, trimEnd: trim.outSec,
+        suggestedName: 'Reel-recording'
+      })
+      if (res.saved && res.path) {
+        window.reel.revealInExplorer(res.path)
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
+    } finally {
+      setProgress(null)
     }
   }
 
@@ -59,6 +66,7 @@ export function Editor({ tempPath, duration }: { tempPath: string; duration: num
         <button onClick={save} disabled={progress !== null}>
           {progress === null ? 'Save' : `Exporting ${progress}%`}
         </button>
+        {error && <span className="error">{error}</span>}
       </div>
       <TrimBar
         duration={dur}

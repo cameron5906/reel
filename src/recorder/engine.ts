@@ -23,7 +23,28 @@ export class RecorderEngine {
   private display?: DisplayInfo
   private canvasScale = 1
 
+  private reset() {
+    this.offBubble?.()
+    this.offBubble = undefined
+    this.bubbleBounds = undefined
+    this.settings = undefined
+    this.display = undefined
+    this.screen?.getTracks().forEach((t) => t.stop())
+    this.webcam?.getTracks().forEach((t) => t.stop())
+    this.mic?.getTracks().forEach((t) => t.stop())
+    this.audioMix?.close()
+    this.audioMix = undefined
+    this.screenVideo.srcObject = null
+    this.webcamVideo.srcObject = null
+    this.screen = undefined
+    this.webcam = undefined
+    this.mic = undefined
+    this.recorder = undefined
+    this.chunks = []
+  }
+
   async start(cmd: Extract<RecorderCommand, { type: 'start' }>) {
+    this.reset()
     const { settings, sourceId, display } = cmd
     this.screen = await getScreenStream(sourceId, settings.systemAudio)
 
@@ -128,7 +149,12 @@ function captureRect(settings: RecordingSettings, display: DisplayInfo): Rect {
 function playStream(video: HTMLVideoElement, stream: MediaStream): Promise<void> {
   video.srcObject = stream
   video.muted = true
-  return new Promise((resolve) => {
-    video.onloadedmetadata = () => video.play().then(() => resolve())
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error('Timed out waiting for stream metadata')), 10000)
+    video.onloadedmetadata = () => {
+      clearTimeout(timer)
+      video.play().then(() => resolve()).catch(reject)
+    }
+    video.onerror = () => { clearTimeout(timer); reject(new Error('Stream failed to load')) }
   })
 }

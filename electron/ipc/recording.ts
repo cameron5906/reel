@@ -1,4 +1,4 @@
-import { ipcMain } from 'electron'
+import { ipcMain, dialog } from 'electron'
 import type { RecordingSettings, DisplayInfo } from '@shared/types'
 import { registry } from '../windows/registry'
 import { createCompositorWindow } from '../windows/compositor'
@@ -52,5 +52,12 @@ export function registerRecordingHandlers() {
     registry.close('bubble')
     registry.close('toolbar')
     createEditorWindow(payload.tempPath, payload.durationSec)
+  })
+
+  ipcMain.on('recording:abort', (_e, message: string) => {
+    unregisterStopHotkey()
+    registry.close('bubble')
+    registry.close('toolbar')
+    dialog.showErrorBox('Recording failed', message)
   })
 }

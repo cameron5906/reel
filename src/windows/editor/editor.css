@@ -8,3 +8,4 @@ html, body { margin: 0; font-family: system-ui; background: #111; color: #eee; }
 .trim-range { position: absolute; top: 0; bottom: 0; background: rgba(79,124,255,.18); }
 .playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: #fff; }
 .handle { position: absolute; top: 0; bottom: 0; width: 10px; margin-left: -5px; background: #4f7cff; cursor: ew-resize; border-radius: 4px; }
+.error { color: #ff6b6b; font-size: 0.875rem; }

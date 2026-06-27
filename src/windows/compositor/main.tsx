@@ -4,7 +4,10 @@ const engine = new RecorderEngine()
 
 const off = window.reel.onRecorderCommand(async (cmd) => {
   if (cmd.type === 'start') {
-    try { await engine.start(cmd) } catch (err) { console.error('start failed', err) }
+    try { await engine.start(cmd) } catch (err) {
+      await engine.stop().catch(() => {})
+      window.reel.abortRecording(err instanceof Error ? err.message : String(err))
+    }
   } else if (cmd.type === 'pause') {
     engine.pause()
   } else if (cmd.type === 'resume') {
