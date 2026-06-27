@@ -7,6 +7,7 @@ import type {
 const api = {
   getDisplays: (): Promise<DisplayInfo[]> => ipcRenderer.invoke('sources:displays'),
   selectRegion: (): Promise<Rect | null> => ipcRenderer.invoke('region:select'),
+  regionDone: (rect: Rect | null): void => { ipcRenderer.send('region:done', rect) },
 
   startRecording: (settings: RecordingSettings): Promise<void> =>
     ipcRenderer.invoke('recording:start', settings),

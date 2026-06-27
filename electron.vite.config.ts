@@ -17,7 +17,8 @@ export default defineConfig({
           home: resolve('src/windows/home/index.html'),
           compositor: resolve('src/windows/compositor/index.html'),
           bubble: resolve('src/windows/bubble/index.html'),
-          toolbar: resolve('src/windows/toolbar/index.html')
+          toolbar: resolve('src/windows/toolbar/index.html'),
+          region: resolve('src/windows/region/index.html')
         }
       }
     }

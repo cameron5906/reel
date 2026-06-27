@@ -1,0 +1,5 @@
+html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; cursor: crosshair; }
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,.25); }
+.hint { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); color: #fff; font-family: system-ui; background: rgba(0,0,0,.6); padding: 6px 12px; border-radius: 8px; }
+.sel { position: fixed; border: 2px solid #4f7cff; background: rgba(79,124,255,.12); box-shadow: 0 0 0 99999px rgba(0,0,0,.25); }
+.size { position: absolute; top: -24px; left: 0; color: #fff; font-family: system-ui; font-size: 12px; background: #4f7cff; padding: 2px 6px; border-radius: 6px; }

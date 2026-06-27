@@ -1,7 +1,10 @@
 import { ipcMain, screen, desktopCapturer } from 'electron'
 import type { DisplayInfo } from '@shared/types'
+import { selectRegion } from '../windows/region'
 
 export function registerSourceHandlers() {
+  ipcMain.handle('region:select', () => selectRegion())
+
   ipcMain.handle('sources:displays', async (): Promise<DisplayInfo[]> => {
     const displays = screen.getAllDisplays()
     const sources = await desktopCapturer.getSources({ types: ['screen'] })
