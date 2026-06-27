@@ -4,6 +4,7 @@ import { defaultSettings } from '@/store/settings'
 import { useMediaDevices } from './hooks/useMediaDevices'
 import { SourcePicker } from './components/SourcePicker'
 import { DevicePicker } from './components/DevicePicker'
+import { Library } from './components/Library'
 import './home.css'
 
 export function App() {
@@ -45,6 +46,11 @@ export function App() {
       <button className="record" disabled={displays.length === 0} onClick={startRecording}>
         ● Record
       </button>
+
+      <section>
+        <h2>Recordings</h2>
+        <Library />
+      </section>
     </div>
   )
 }
