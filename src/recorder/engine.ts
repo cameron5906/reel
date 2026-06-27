@@ -1,6 +1,7 @@
 import type { RecorderCommand, Rect, DisplayInfo, RecordingSettings } from '@shared/types'
 import { physicalCrop, fitCanvas, mapBubbleToCanvas } from '@/lib/coords'
-import { getScreenStream, getWebcamStream, pickMimeType } from './streams'
+import { getScreenStream, getWebcamStream, getMicStream, pickMimeType } from './streams'
+import { mixAudio } from './audio-mix'
 
 export class RecorderEngine {
   private screen?: MediaStream
@@ -14,6 +15,8 @@ export class RecorderEngine {
   private startMs = 0
   private webcam?: MediaStream
   private webcamVideo = document.createElement('video')
+  private mic?: MediaStream
+  private audioMix?: { track: MediaStreamTrack; close: () => void }
   private bubbleBounds?: Rect
   private offBubble?: () => void
   private settings?: RecordingSettings
@@ -41,7 +44,20 @@ export class RecorderEngine {
 
     await playStream(this.screenVideo, new MediaStream(this.screen.getVideoTracks()))
 
+    const audioSources: MediaStream[] = []
+    if (settings.systemAudio && this.screen.getAudioTracks().length) {
+      audioSources.push(new MediaStream(this.screen.getAudioTracks()))
+    }
+    if (settings.micDeviceId) {
+      this.mic = await getMicStream(settings.micDeviceId)
+      audioSources.push(this.mic)
+    }
+
     const out = this.canvas.captureStream(30)
+    if (audioSources.length) {
+      this.audioMix = mixAudio(audioSources)
+      out.addTrack(this.audioMix.track)
+    }
     this.recorder = new MediaRecorder(out, { mimeType: pickMimeType(), videoBitsPerSecond: 8_000_000 })
     this.recorder.ondataavailable = (e) => { if (e.data.size) this.chunks.push(e.data) }
     this.chunks = []
@@ -87,6 +103,8 @@ export class RecorderEngine {
     const blob = await this.finalize()
     this.offBubble?.()
     this.webcam?.getTracks().forEach((t) => t.stop())
+    this.mic?.getTracks().forEach((t) => t.stop())
+    this.audioMix?.close()
     this.screen?.getTracks().forEach((t) => t.stop())
     return { blob, durationSec }
   }
