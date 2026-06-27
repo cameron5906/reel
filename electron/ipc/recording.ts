@@ -5,6 +5,7 @@ import { createCompositorWindow } from '../windows/compositor'
 import { createBubbleWindow } from '../windows/bubble'
 import { createToolbarWindow } from '../windows/toolbar'
 import { createEditorWindow } from '../windows/editor'
+import { registerStopHotkey, unregisterStopHotkey } from './hotkeys'
 
 export function registerRecordingHandlers() {
   ipcMain.handle('recording:start', async (_e, settings: RecordingSettings) => {
@@ -33,6 +34,7 @@ export function registerRecordingHandlers() {
     else send()
 
     createToolbarWindow()
+    registerStopHotkey()
   })
 
   ipcMain.handle('recording:stop', async () => {
@@ -46,6 +48,7 @@ export function registerRecordingHandlers() {
   })
 
   ipcMain.on('recording:finished', (_e, payload: { tempPath: string; durationSec: number }) => {
+    unregisterStopHotkey()
     registry.close('bubble')
     registry.close('toolbar')
     createEditorWindow(payload.tempPath, payload.durationSec)
