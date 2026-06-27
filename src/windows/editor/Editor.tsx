@@ -6,6 +6,8 @@ export function Editor({ tempPath, duration }: { tempPath: string; duration: num
   const [dur, setDur] = useState(duration)
   const [trim, setTrim] = useState({ inSec: 0, outSec: duration })
   const [playhead, setPlayhead] = useState(0)
+  const [format, setFormat] = useState<'mp4' | 'webm'>('mp4')
+  const [progress, setProgress] = useState<number | null>(null)
 
   useEffect(() => {
     const v = videoRef.current!
@@ -21,6 +23,23 @@ export function Editor({ tempPath, duration }: { tempPath: string; duration: num
     return () => { v.removeEventListener('loadedmetadata', onMeta); v.removeEventListener('timeupdate', onTime) }
   }, [trim.outSec])
 
+  useEffect(() => {
+    const unsub = window.reel.onExportProgress(setProgress)
+    return () => { unsub() }
+  }, [])
+
+  async function save() {
+    setProgress(0)
+    const res = await window.reel.saveRecording({
+      tempPath, format, trimStart: trim.inSec, trimEnd: trim.outSec,
+      suggestedName: 'Reel-recording'
+    })
+    setProgress(null)
+    if (res.saved && res.path) {
+      window.reel.revealInExplorer(res.path)
+    }
+  }
+
   function play() {
     const v = videoRef.current!
     if (v.currentTime < trim.inSec || v.currentTime >= trim.outSec) v.currentTime = trim.inSec
@@ -33,7 +52,13 @@ export function Editor({ tempPath, duration }: { tempPath: string; duration: num
       <div className="controls">
         <button onClick={play}>▶ Play</button>
         <span className="meta">Trim: {trim.inSec.toFixed(1)}s – {trim.outSec.toFixed(1)}s</span>
-        {/* Save button added in Task 15 */}
+        <select value={format} onChange={(e) => setFormat(e.target.value as 'mp4' | 'webm')}>
+          <option value="mp4">MP4</option>
+          <option value="webm">WebM</option>
+        </select>
+        <button onClick={save} disabled={progress !== null}>
+          {progress === null ? 'Save' : `Exporting ${progress}%`}
+        </button>
       </div>
       <TrimBar
         duration={dur}

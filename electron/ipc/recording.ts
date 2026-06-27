@@ -1,6 +1,4 @@
-import { app, ipcMain } from 'electron'
-import { writeFile } from 'node:fs/promises'
-import { join } from 'node:path'
+import { ipcMain } from 'electron'
 import type { RecordingSettings, DisplayInfo } from '@shared/types'
 import { registry } from '../windows/registry'
 import { createCompositorWindow } from '../windows/compositor'
@@ -45,12 +43,6 @@ export function registerRecordingHandlers() {
 
   ipcMain.on('recorder:cmd', (_e, cmd) => {
     registry.get('compositor')?.webContents.send('recorder:cmd', cmd)
-  })
-
-  ipcMain.handle('files:writeTemp', async (_e, bytes: Uint8Array) => {
-    const tempPath = join(app.getPath('temp'), `reel-${process.hrtime.bigint()}.webm`)
-    await writeFile(tempPath, Buffer.from(bytes))
-    return tempPath
   })
 
   ipcMain.on('recording:finished', (_e, payload: { tempPath: string; durationSec: number }) => {
