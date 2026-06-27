@@ -35,6 +35,8 @@ const api = {
     return () => ipcRenderer.removeListener('recording:finished', h)
   },
 
+  writeTemp: (bytes: Uint8Array): Promise<string> => ipcRenderer.invoke('files:writeTemp', bytes),
+
   saveRecording: (req: SaveRequest): Promise<SaveResult> => ipcRenderer.invoke('files:save', req),
   listRecordings: (): Promise<RecordingMeta[]> => ipcRenderer.invoke('files:list'),
   deleteRecording: (path: string): Promise<void> => ipcRenderer.invoke('files:delete', path),

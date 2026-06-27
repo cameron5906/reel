@@ -1,6 +1,7 @@
 import { app, BrowserWindow } from 'electron'
 import { join } from 'node:path'
 import { registerSourceHandlers } from './ipc/sources'
+import { registerRecordingHandlers } from './ipc/recording'
 import { registry } from './windows/registry'
 
 const isDev = !!process.env['ELECTRON_RENDERER_URL']
@@ -22,6 +23,7 @@ function createHome() {
 
 app.whenReady().then(() => {
   registerSourceHandlers()
+  registerRecordingHandlers()
   createHome()
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createHome()

@@ -14,7 +14,8 @@ export default defineConfig({
     build: {
       rollupOptions: {
         input: {
-          home: resolve('src/windows/home/index.html')
+          home: resolve('src/windows/home/index.html'),
+          compositor: resolve('src/windows/compositor/index.html')
         }
       }
     }
