@@ -19,6 +19,9 @@ const api = {
     return () => ipcRenderer.removeListener('bubble:bounds', h)
   },
 
+  pauseRecording: (): void => { ipcRenderer.send('recorder:cmd', { type: 'pause' }) },
+  resumeRecording: (): void => { ipcRenderer.send('recorder:cmd', { type: 'resume' }) },
+
   sendRecorderCommand: (cmd: RecorderCommand): void => { ipcRenderer.send('recorder:cmd', cmd) },
   onRecorderCommand: (cb: (cmd: RecorderCommand) => void) => {
     const h = (_: unknown, c: RecorderCommand) => cb(c)

@@ -5,6 +5,10 @@ const engine = new RecorderEngine()
 const off = window.reel.onRecorderCommand(async (cmd) => {
   if (cmd.type === 'start') {
     try { await engine.start(cmd) } catch (err) { console.error('start failed', err) }
+  } else if (cmd.type === 'pause') {
+    engine.pause()
+  } else if (cmd.type === 'resume') {
+    engine.resume()
   } else if (cmd.type === 'stop') {
     const { blob, durationSec } = await engine.stop()
     const buf = new Uint8Array(await blob.arrayBuffer())

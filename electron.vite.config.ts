@@ -16,7 +16,8 @@ export default defineConfig({
         input: {
           home: resolve('src/windows/home/index.html'),
           compositor: resolve('src/windows/compositor/index.html'),
-          bubble: resolve('src/windows/bubble/index.html')
+          bubble: resolve('src/windows/bubble/index.html'),
+          toolbar: resolve('src/windows/toolbar/index.html')
         }
       }
     }

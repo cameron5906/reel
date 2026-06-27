@@ -97,6 +97,9 @@ export class RecorderEngine {
     this.raf = requestAnimationFrame(this.loop)
   }
 
+  pause() { this.recorder?.state === 'recording' && this.recorder.pause() }
+  resume() { this.recorder?.state === 'paused' && this.recorder.resume() }
+
   async stop(): Promise<{ blob: Blob; durationSec: number }> {
     cancelAnimationFrame(this.raf)
     const durationSec = (performance.now() - this.startMs) / 1000

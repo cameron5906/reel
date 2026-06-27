@@ -1,0 +1,12 @@
+html, body { margin: 0; background: transparent; overflow: hidden; }
+.bar {
+  display: flex; align-items: center; gap: 12px;
+  height: 56px; padding: 0 16px; border-radius: 28px;
+  background: rgba(20,20,24,.92); color: #fff;
+  -webkit-app-region: drag; font-family: system-ui;
+}
+.bar button { -webkit-app-region: no-drag; background: #2c2c34; color: #fff; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 14px; }
+.bar .stop { background: #e5484d; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: #e5484d; animation: pulse 1.2s infinite; }
+.time { font-variant-numeric: tabular-nums; min-width: 48px; }
+@keyframes pulse { 50% { opacity: .3; } }

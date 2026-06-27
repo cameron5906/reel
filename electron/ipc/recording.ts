@@ -5,6 +5,7 @@ import type { RecordingSettings, DisplayInfo } from '@shared/types'
 import { registry } from '../windows/registry'
 import { createCompositorWindow } from '../windows/compositor'
 import { createBubbleWindow } from '../windows/bubble'
+import { createToolbarWindow } from '../windows/toolbar'
 
 export function registerRecordingHandlers() {
   ipcMain.handle('recording:start', async (_e, settings: RecordingSettings) => {
@@ -31,11 +32,18 @@ export function registerRecordingHandlers() {
       { type: 'start', settings, sourceId: source.id, display: info })
     if (comp.webContents.isLoading()) comp.webContents.once('did-finish-load', send)
     else send()
+
+    createToolbarWindow()
   })
 
   ipcMain.handle('recording:stop', async () => {
     registry.get('compositor')?.webContents.send('recorder:cmd', { type: 'stop' })
     registry.close('bubble')
+    registry.close('toolbar')
+  })
+
+  ipcMain.on('recorder:cmd', (_e, cmd) => {
+    registry.get('compositor')?.webContents.send('recorder:cmd', cmd)
   })
 
   ipcMain.handle('files:writeTemp', async (_e, bytes: Uint8Array) => {
