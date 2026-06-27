@@ -25,7 +25,7 @@ export function SourcePicker({ displays, target, onChange }: Props) {
       <div className="seg">
         <button
           className={target.kind === 'display' ? 'active' : ''}
-          onClick={() => onChange({ kind: 'display', displayId: displays[0]?.id ?? 0 })}
+          onClick={() => { if (target.kind !== 'display') onChange({ kind: 'display', displayId: displays[0]?.id ?? 0 }) }}
         >
           Full monitor
         </button>

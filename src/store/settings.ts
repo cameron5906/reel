@@ -5,6 +5,6 @@ export const defaultSettings: RecordingSettings = {
   micDeviceId: null,
   webcamDeviceId: null,
   systemAudio: true,
-  bubble: { enabled: true, sizePx: 180 },
+  bubble: { enabled: false, sizePx: 180 },
   maxLongEdge: 1920
 }
