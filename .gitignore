@@ -1,6 +1,8 @@
 node_modules/
 dist/
 dist-electron/
+out/
 release/
+.superpowers/
 *.log
 .DS_Store
