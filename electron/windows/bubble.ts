@@ -1,14 +1,22 @@
-import { BrowserWindow, screen } from 'electron'
+import { BrowserWindow } from 'electron'
 import { join } from 'node:path'
+import type { Rect, CameraFrame } from '@shared/types'
 import { registry } from './registry'
 
-export function createBubbleWindow(sizePx: number, camId: string): BrowserWindow {
-  const primary = screen.getPrimaryDisplay()
+export function createBubbleWindow(sizePx: number, camId: string, anchor: Rect, frame: CameraFrame): BrowserWindow {
+  const margin = 24
+  const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(v, hi))
+  const x = clamp(anchor.x + margin, anchor.x, anchor.x + anchor.width - sizePx)
+  const y = clamp(
+    anchor.y + anchor.height - sizePx - margin,
+    anchor.y,
+    anchor.y + anchor.height - sizePx
+  )
   const win = new BrowserWindow({
     width: sizePx,
     height: sizePx,
-    x: primary.bounds.x + 60,
-    y: primary.bounds.y + primary.bounds.height - sizePx - 80,
+    x,
+    y,
     frame: false,
     transparent: true,
     resizable: true,
@@ -22,6 +30,7 @@ export function createBubbleWindow(sizePx: number, camId: string): BrowserWindow
     }
   })
   win.setAlwaysOnTop(true, 'screen-saver')
+  win.setContentProtection(true) // the engine composites the bubble; keep the on-screen preview out of capture
 
   const report = () => {
     const b = win.getBounds()
@@ -31,9 +40,10 @@ export function createBubbleWindow(sizePx: number, camId: string): BrowserWindow
   win.on('resize', report)
   win.webContents.on('did-finish-load', report)
 
+  const q = `cam=${encodeURIComponent(camId)}&zoom=${frame.zoom}&panX=${frame.panX}&panY=${frame.panY}`
   const isDev = !!process.env['ELECTRON_RENDERER_URL']
-  if (isDev) win.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/windows/bubble/index.html?cam=${encodeURIComponent(camId)}`)
-  else win.loadFile(join(__dirname, '../renderer/windows/bubble/index.html'), { search: `cam=${encodeURIComponent(camId)}` })
+  if (isDev) win.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/windows/bubble/index.html?${q}`)
+  else win.loadFile(join(__dirname, '../renderer/windows/bubble/index.html'), { search: q })
 
   registry.set('bubble', win)
   return win

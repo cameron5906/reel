@@ -7,12 +7,15 @@ export function Editor({ tempPath, duration }: { tempPath: string; duration: num
   const [trim, setTrim] = useState({ inSec: 0, outSec: duration })
   const [playhead, setPlayhead] = useState(0)
   const [format, setFormat] = useState<'mp4' | 'webm'>('mp4')
+  const [height, setHeight] = useState<number | null>(null)
+  const [srcHeight, setSrcHeight] = useState(0)
   const [progress, setProgress] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const v = videoRef.current!
     const onMeta = () => {
+      if (v.videoHeight) setSrcHeight(v.videoHeight)
       if (isFinite(v.duration)) { setDur(v.duration); setTrim((_t) => ({ inSec: 0, outSec: v.duration })) }
     }
     const onTime = () => {
@@ -35,7 +38,9 @@ export function Editor({ tempPath, duration }: { tempPath: string; duration: num
     try {
       const res = await window.reel.saveRecording({
         tempPath, format, trimStart: trim.inSec, trimEnd: trim.outSec,
-        suggestedName: 'Reel-recording'
+        suggestedName: 'Reel-recording',
+        height,
+        durationSec: Math.max(0.1, trim.outSec - trim.inSec)
       })
       if (res.saved && res.path) {
         window.reel.revealInExplorer(res.path)
@@ -62,6 +67,12 @@ export function Editor({ tempPath, duration }: { tempPath: string; duration: num
         <select value={format} onChange={(e) => setFormat(e.target.value as 'mp4' | 'webm')}>
           <option value="mp4">MP4</option>
           <option value="webm">WebM</option>
+        </select>
+        <select value={height ?? ''} onChange={(e) => setHeight(e.target.value ? Number(e.target.value) : null)}>
+          <option value="">Original{srcHeight ? ` (${srcHeight}p)` : ''}</option>
+          {[1080, 720, 480].filter((h) => h < srcHeight).map((h) => (
+            <option key={h} value={h}>{h}p</option>
+          ))}
         </select>
         <button onClick={save} disabled={progress !== null}>
           {progress === null ? 'Save' : `Exporting ${progress}%`}

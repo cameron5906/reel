@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import type {
-  DisplayInfo, Rect, RecordingSettings, RecorderCommand,
+  DisplayInfo, Rect, RecordingSettings, RecorderCommand, SceneMode,
   SaveRequest, SaveResult, RecordingMeta
 } from '@shared/types'
 
@@ -23,6 +23,34 @@ const api = {
   pauseRecording: (): void => { ipcRenderer.send('recorder:cmd', { type: 'pause' }) },
   resumeRecording: (): void => { ipcRenderer.send('recorder:cmd', { type: 'resume' }) },
 
+  setScene: (mode: SceneMode): void => { ipcRenderer.send('recording:scene', mode) },
+  onSceneChanged: (cb: (mode: SceneMode) => void) => {
+    const h = (_: unknown, m: SceneMode) => cb(m)
+    ipcRenderer.on('scene:changed', h)
+    return () => { ipcRenderer.removeListener('scene:changed', h) }
+  },
+
+  setFlip: (value: boolean): void => { ipcRenderer.send('recording:flip', value) },
+  onFlipChanged: (cb: (value: boolean) => void) => {
+    const h = (_: unknown, v: boolean) => cb(v)
+    ipcRenderer.on('flip:changed', h)
+    return () => { ipcRenderer.removeListener('flip:changed', h) }
+  },
+
+  setDrawMode: (on: boolean): void => { ipcRenderer.send('recording:draw', on) },
+  onDrawChanged: (cb: (on: boolean) => void) => {
+    const h = (_: unknown, v: boolean) => cb(v)
+    ipcRenderer.on('draw:changed', h)
+    return () => { ipcRenderer.removeListener('draw:changed', h) }
+  },
+
+  setFollow: (on: boolean): void => { ipcRenderer.send('recording:follow', on) },
+  onFollowChanged: (cb: (on: boolean) => void) => {
+    const h = (_: unknown, v: boolean) => cb(v)
+    ipcRenderer.on('follow:changed', h)
+    return () => { ipcRenderer.removeListener('follow:changed', h) }
+  },
+
   sendRecorderCommand: (cmd: RecorderCommand): void => { ipcRenderer.send('recorder:cmd', cmd) },
   onRecorderCommand: (cb: (cmd: RecorderCommand) => void) => {
     const h = (_: unknown, c: RecorderCommand) => cb(c)
@@ -39,7 +67,8 @@ const api = {
     return () => ipcRenderer.removeListener('recording:finished', h)
   },
 
-  writeTemp: (bytes: Uint8Array): Promise<string> => ipcRenderer.invoke('files:writeTemp', bytes),
+  writeTemp: (bytes: Uint8Array, ext: 'mp4' | 'webm' = 'webm'): Promise<string> =>
+    ipcRenderer.invoke('files:writeTemp', bytes, ext),
 
   saveRecording: (req: SaveRequest): Promise<SaveResult> => ipcRenderer.invoke('files:save', req),
   listRecordings: (): Promise<RecordingMeta[]> => ipcRenderer.invoke('files:list'),
@@ -53,7 +82,21 @@ const api = {
     return () => ipcRenderer.removeListener('export:progress', h)
   },
 
-  abortRecording: (message: string): void => { ipcRenderer.send('recording:abort', message) }
+  abortRecording: (message: string): void => { ipcRenderer.send('recording:abort', message) },
+
+  countdownDone: (): void => { ipcRenderer.send('countdown:done') },
+
+  getSettings: (): Promise<RecordingSettings | null> => ipcRenderer.invoke('settings:get'),
+  saveSettings: (settings: RecordingSettings): void => { ipcRenderer.send('settings:set', settings) },
+
+  minimizeWindow: (): void => { ipcRenderer.send('window:minimize') },
+  toggleMaximizeWindow: (): void => { ipcRenderer.send('window:maximizeToggle') },
+  closeWindow: (): void => { ipcRenderer.send('window:close') },
+  onMaximizeChange: (cb: (maximized: boolean) => void) => {
+    const h = (_: unknown, m: boolean) => cb(m)
+    ipcRenderer.on('window:maximized', h)
+    return () => { ipcRenderer.removeListener('window:maximized', h) }
+  }
 }
 
 export type ReelApi = typeof api

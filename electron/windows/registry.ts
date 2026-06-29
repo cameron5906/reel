@@ -13,6 +13,11 @@ export const registry = {
   close(name: string) {
     windows.get(name)?.close()
   },
+  closeRecordingOverlays() {
+    for (const name of ['bubble', 'toolbar', 'region-outline', 'annotation']) {
+      windows.get(name)?.close()
+    }
+  },
   broadcast(channel: string, payload: unknown) {
     for (const win of windows.values()) {
       if (!win.isDestroyed()) win.webContents.send(channel, payload)

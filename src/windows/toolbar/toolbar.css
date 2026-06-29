@@ -7,6 +7,11 @@ html, body { margin: 0; background: transparent; overflow: hidden; }
 }
 .bar button { -webkit-app-region: no-drag; background: #2c2c34; color: #fff; border: none; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 14px; }
 .bar .stop { background: #e5484d; }
+.scenes { display: flex; gap: 4px; -webkit-app-region: no-drag; background: #1b1b20; padding: 3px; border-radius: 10px; }
+.scenes .scene { width: auto; height: 28px; padding: 0 9px; border-radius: 7px; background: transparent; color: #b8b8c0; font-size: 12px; }
+.scenes .scene.active { background: #4f7cff; color: #fff; }
+.bar .icon-btn { width: 38px; height: 38px; border-radius: 10px; background: #2c2c34; color: #b8b8c0; display: grid; place-items: center; }
+.bar .icon-btn.active { background: #4f7cff; color: #fff; }
 .dot { width: 10px; height: 10px; border-radius: 50%; background: #e5484d; animation: pulse 1.2s infinite; }
 .time { font-variant-numeric: tabular-nums; min-width: 48px; }
 @keyframes pulse { 50% { opacity: .3; } }

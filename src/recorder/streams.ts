@@ -25,6 +25,19 @@ export async function getMicStream(deviceId: string): Promise<MediaStream> {
 }
 
 export function pickMimeType(): string {
-  const candidates = ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm']
+  // Prefer H.264/MP4 so "Export to MP4" can stream-copy (instant). Then VP8
+  // (fast to decode) over VP9 (slow software decode) for the webm fallback.
+  const candidates = [
+    'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
+    'video/mp4;codecs=avc1,mp4a.40.2',
+    'video/mp4',
+    'video/webm;codecs=vp8,opus',
+    'video/webm;codecs=vp9,opus',
+    'video/webm'
+  ]
   return candidates.find((c) => MediaRecorder.isTypeSupported(c)) ?? 'video/webm'
+}
+
+export function extForMime(mime: string): 'mp4' | 'webm' {
+  return mime.startsWith('video/mp4') ? 'mp4' : 'webm'
 }

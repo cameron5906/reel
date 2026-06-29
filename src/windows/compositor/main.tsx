@@ -12,10 +12,14 @@ const off = window.reel.onRecorderCommand(async (cmd) => {
     engine.pause()
   } else if (cmd.type === 'resume') {
     engine.resume()
+  } else if (cmd.type === 'scene') {
+    engine.setScene(cmd.mode)
+  } else if (cmd.type === 'flip') {
+    engine.setFlip(cmd.value)
   } else if (cmd.type === 'stop') {
-    const { blob, durationSec } = await engine.stop()
+    const { blob, durationSec, ext } = await engine.stop()
     const buf = new Uint8Array(await blob.arrayBuffer())
-    const tempPath = await window.reel.writeTemp(buf)
+    const tempPath = await window.reel.writeTemp(buf, ext)
     window.reel.recordingFinished(tempPath, durationSec)
   }
 })

@@ -11,8 +11,8 @@ function libraryDir(): string {
 }
 
 export function registerFileHandlers() {
-  ipcMain.handle('files:writeTemp', async (_e, bytes: Uint8Array) => {
-    const tempPath = join(app.getPath('temp'), `reel-${process.hrtime.bigint()}.webm`)
+  ipcMain.handle('files:writeTemp', async (_e, bytes: Uint8Array, ext: 'mp4' | 'webm' = 'webm') => {
+    const tempPath = join(app.getPath('temp'), `reel-${process.hrtime.bigint()}.${ext}`)
     await writeFile(tempPath, Buffer.from(bytes))
     return tempPath
   })
@@ -28,19 +28,29 @@ export function registerFileHandlers() {
     if (canceled || !filePath) return { saved: false }
 
     const win = BrowserWindow.fromWebContents(e.sender)
-    const args = buildTranscodeArgs({
+    const sourceIsMp4 = req.tempPath.toLowerCase().endsWith('.mp4')
+    const base = {
       input: req.tempPath, output: filePath, format: req.format,
-      trimStart: req.trimStart, trimEnd: req.trimEnd
-    })
-    const total = (req.trimEnd ?? 0) - (req.trimStart ?? 0)
-    await runFfmpeg(args, (sec) => {
-      if (total > 0) win?.webContents.send('export:progress', Math.min(100, Math.round((sec / total) * 100)))
-    })
+      trimStart: req.trimStart, trimEnd: req.trimEnd,
+      height: req.height, sourceIsMp4
+    }
+    const total = req.durationSec ?? ((req.trimEnd ?? 0) - (req.trimStart ?? 0))
+    const onProgress = (sec: number) => {
+      if (total > 0) win?.webContents.send('export:progress', Math.min(99, Math.round((sec / total) * 100)))
+    }
+    // Try GPU (NVENC) first for any re-encode; fall back to libx264 if it's unavailable.
+    // (The copy fast-path ignores the encoder, so this is a no-op there.)
+    try {
+      await runFfmpeg(buildTranscodeArgs({ ...base, videoEncoder: 'nvenc' }), onProgress)
+    } catch {
+      await runFfmpeg(buildTranscodeArgs({ ...base, videoEncoder: 'x264' }), onProgress)
+    }
 
-    // best-effort thumbnail
+    // best-effort thumbnail (a little way in, so it isn't a black first frame)
     try {
       const thumb = filePath.replace(/\.[^.]+$/, '.jpg')
-      await runFfmpeg(buildThumbnailArgs(filePath, thumb, 1))
+      const at = Math.max(0.5, Math.min(3, (req.durationSec ?? 4) * 0.2))
+      await runFfmpeg(buildThumbnailArgs(filePath, thumb, at))
     } catch { /* ignore */ }
 
     win?.webContents.send('export:progress', 100)
@@ -56,7 +66,17 @@ export function registerFileHandlers() {
       const s = await stat(path)
       const thumb = join(libraryDir(), f.replace(/\.[^.]+$/, '.jpg'))
       let thumbnailPath: string | null = null
-      try { await stat(thumb); thumbnailPath = thumb } catch { /* none */ }
+      try {
+        await stat(thumb)
+        thumbnailPath = thumb
+      } catch {
+        // No thumbnail yet (save-time failure, or a file added outside the app) — make one.
+        try {
+          await runFfmpeg(buildThumbnailArgs(path, thumb, 1))
+          await stat(thumb)
+          thumbnailPath = thumb
+        } catch { /* leave null; UI shows a placeholder */ }
+      }
       return { path, name: basename(f), thumbnailPath, durationSec: null, createdMs: s.birthtimeMs, sizeBytes: s.size }
     }))
     return metas.sort((a, b) => b.createdMs - a.createdMs)
