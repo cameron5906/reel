@@ -6,3 +6,6 @@ release/
 .superpowers/
 *.log
 .DS_Store
+
+# MediaPipe wasm runtime is copied from node_modules by scripts/setup-mediapipe.mjs (postinstall)
+src/public/mediapipe/wasm/

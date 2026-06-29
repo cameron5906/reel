@@ -1,7 +1,10 @@
 {
   "name": "reel",
   "version": "0.1.0",
-  "description": "Local screen recorder with webcam bubble",
+  "description": "A free, local screen recorder with a webcam bubble — no account, no subscription, no cloud.",
+  "license": "MIT",
+  "author": "Cameron Cooper",
+  "repository": { "type": "git", "url": "https://github.com/cameron5906/reel" },
   "main": "out/main/main.js",
   "scripts": {
     "dev": "electron-vite dev",
@@ -10,7 +13,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json",
-    "package": "electron-vite build && electron-builder --win"
+    "package": "electron-vite build && electron-builder --win",
+    "setup": "node scripts/setup-mediapipe.mjs",
+    "postinstall": "node scripts/setup-mediapipe.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
@@ -25,6 +30,7 @@
     "vitest": "^2.1.8"
   },
   "dependencies": {
+    "@mediapipe/tasks-vision": "^0.10.35",
     "ffmpeg-static": "^5.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
