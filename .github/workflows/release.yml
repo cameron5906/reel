@@ -1,0 +1,43 @@
+name: Release
+
+# Build and publish the Windows installer when a version tag is pushed
+# (e.g. `git tag v0.1.0 && git push origin v0.1.0`), or run manually.
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build renderer/main/preload
+        run: npm run build
+
+      - name: Package and publish Windows installer
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # We don't ship a code-signing certificate; don't let electron-builder
+          # try to auto-discover one (it would fail the build).
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npx electron-builder --win --publish always

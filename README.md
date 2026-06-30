@@ -20,10 +20,16 @@ It started as a weekend answer to a simple question: why am I paying a monthly f
 
 Reel captures and saves entirely on your computer. No telemetry, no sign-in, nothing uploaded anywhere. Recordings land in a folder you pick (defaults to `Videos\Reel`), and they're plain `.mp4`/`.webm` files you can do anything with.
 
+## Download
+
+Grab the latest installer from the [**Releases**](https://github.com/cameron5906/reel/releases/latest) page, run it, done. No Node, no terminal.
+
+Reel isn't code-signed (that costs money for something I'm giving away), so Windows SmartScreen may warn you the first time — click **More info → Run anyway**. Prefer to build it yourself? See below.
+
 ## Requirements
 
 - Windows 10/11
-- [Node.js](https://nodejs.org) 18 or newer (to run or build from source)
+- [Node.js](https://nodejs.org) 18 or newer (only needed to run or build from source)
 
 ## Run it
 

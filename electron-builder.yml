@@ -14,3 +14,8 @@ win:
 nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
+  artifactName: ${productName}-Setup-${version}.${ext}
+publish:
+  provider: github
+  owner: cameron5906
+  repo: reel
