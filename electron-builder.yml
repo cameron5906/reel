@@ -12,8 +12,11 @@ win:
   target:
     - nsis
 nsis:
-  oneClick: false
-  allowToChangeInstallationDirectory: true
+  oneClick: true              # install and launch automatically, no finish-page checkbox to miss
+  perMachine: false           # per-user install, no UAC prompt
+  runAfterFinish: true        # auto-launch Reel when the install completes
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
   artifactName: ${productName}-Setup-${version}.${ext}
 publish:
   provider: github
